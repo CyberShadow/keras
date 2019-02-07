@@ -344,6 +344,7 @@ class Progbar(object):
         self._seen_so_far = 0
         self._values = collections.OrderedDict()
         self._start = time.time()
+        self._last = 0
         self._last_update = 0
 
     def update(self, current, values=None):
@@ -422,7 +423,10 @@ class Progbar(object):
                     eta_format = '%ds' % eta
 
                 info = ' - ETA: %s' % eta_format
-            else:
+
+                time_per_unit = (now - self._last_update) / (current - self._last)
+
+            if time_per_unit:
                 if time_per_unit >= 1:
                     info += ' %.0fs/step' % time_per_unit
                 elif time_per_unit >= 1e-3:
@@ -467,6 +471,7 @@ class Progbar(object):
                 sys.stdout.write(info)
                 sys.stdout.flush()
 
+        self._last = current
         self._last_update = now
 
     def add(self, n, values=None):
